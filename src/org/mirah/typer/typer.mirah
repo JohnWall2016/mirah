@@ -904,28 +904,16 @@ class Typer < SimpleNodeVisitor
     end
   end
 
-  def resetScriptSelfType(node:Node)
-    script = Script(node.findAncestor(Script.class))
-    if script
-      scope = scopeOf(script)
-      if scope
-        scope.selfType = @types.getMainType(scope, script)
-      end
-    end
-  end
-
   def visitPackage(node, expression)
     if node.body
       scope = addScopeUnder(node)
       scope.package = node.name.identifier
-      resetScriptSelfType(node)
       infer(node.body, false)
     else
       # TODO this makes things complicated. Probably package should be a property of
       # Script, and Package nodes should require a body.
       scope = scopeOf(node)
       scope.package = node.name.identifier
-      resetScriptSelfType(node)
     end
     @types.getVoidType()
   end
