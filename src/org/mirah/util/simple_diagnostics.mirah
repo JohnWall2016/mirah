@@ -42,6 +42,10 @@ class SimpleDiagnostics; implements DiagnosticListener
     System.err.println(message)
   end
 
+  def err(message:String)
+    log(Kind.ERROR, '', message)
+  end
+
   def report(diagnostic)
     @errors += 1 if Kind.ERROR == diagnostic.getKind
     source = CodeSource(diagnostic.getSource) if diagnostic.getSource.kind_of?(CodeSource)
