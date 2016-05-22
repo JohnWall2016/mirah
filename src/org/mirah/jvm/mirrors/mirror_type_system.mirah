@@ -378,7 +378,7 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
       if resolved.isError
         resolved
       else
-        MirrorProxy.create(MirrorType(types.getMetaType(resolved)))
+        MirrorType(types.getMetaType(resolved))
       end
     end
   end
