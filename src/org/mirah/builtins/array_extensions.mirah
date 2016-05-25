@@ -179,4 +179,26 @@ class ArrayExtensions
   macro def self.cast(array)
     Cast.new(@call.position, TypeName(@call.target), array)
   end
+
+  $MacroArgTypes['int', 'int']
+  macro def [](index, length)
+    arraytype_future   = @mirah.typer.infer(@call.target)
+    arraytype_name     = arraytype_future.resolve.name
+    arraytype_basename = arraytype_name.substring(0,arraytype_name.length-2)
+    arraytype_ref      = TypeRefImpl.new(arraytype_basename,false,false,@call.target.position)
+    quote do
+      size = `@call.target`.size
+      if `index` < 0 or `index` >= size or `length` < 0
+        nil
+      else
+        newsize = `length`
+        if newsize > size - `index`
+          newsize = size - `index`
+        end
+        newarray = `arraytype_ref`[newsize]
+        System.arraycopy(`@call.target`, `index`, newarray, 0, newsize)
+        newarray
+      end
+    end
+  end
 end

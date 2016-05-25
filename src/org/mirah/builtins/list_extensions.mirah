@@ -19,10 +19,29 @@ import org.mirah.macros.anno.ExtensionsRegistration
 
 $ExtensionsRegistration[['java.util.List']]
 class ListExtensions
+  $MacroArgTypes['int',]
   macro def [](index)
     quote { `@call.target`.get `index` }
   end
 
+  $MacroArgTypes['int', 'int']
+  macro def [](index, length)
+    quote do
+      size = `@call.target`.size
+      if `index` < 0 or `index` >= size or `length` < 0
+        nil
+      else
+        fromidx = `index`
+        toidx = fromidx + `length`
+        if toidx > size
+          toidx = size
+        end
+        `@call.target`.subList(fromidx, toidx)
+      end
+    end
+  end
+
+  $MacroArgTypes['int', 'java.lang.Object']
   macro def []=(index, value)
     quote { `@call.target`.add `index`, `value` }
   end
