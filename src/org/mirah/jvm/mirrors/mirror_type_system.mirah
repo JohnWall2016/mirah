@@ -241,11 +241,11 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
     parameterize(loadNamedType("java.util.Map"), [keyVar, valueVar])
   end
 
-  def getMethodDefType(target, name, argTypes, declaredReturnType, position)
+  def getMethodDefType(target, name, argTypes, declaredReturnType, position, vararg)
     name = name.replaceAll('=$', '_set')
     createMember(
         MirrorType(target.peekInferredType), name, argTypes, declaredReturnType,
-        position)
+        position, vararg)
   end
 
   def getNullType
@@ -644,10 +644,11 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
   end
 
   def createMember(target:MirrorType, name:String, arguments:List,
-                   returnType:TypeFuture, position:Position):MethodFuture
+                   returnType:TypeFuture, position:Position, vararg:boolean):MethodFuture
     returnFuture = AssignableTypeFuture.new(position)
 
     flags = Opcodes.ACC_PUBLIC
+    flags |= Opcodes.ACC_VARARGS if vararg
     kind = MemberKind.METHOD
     isMeta = target.isMeta
     if isMeta
@@ -680,7 +681,7 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
     end
 
     target.add(member)
-    MethodFuture.new(name, member.argumentTypes, returnFuture, false, position)
+    MethodFuture.new(name, member.argumentTypes, returnFuture, vararg, position)
   end
 
   def createField(target:MirrorType, name:String,

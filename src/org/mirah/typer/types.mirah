@@ -77,7 +77,8 @@ interface TypeSystem do
                        name:String,
                        argTypes:List,
                        returnType:TypeFuture,
-                       position:Position):MethodFuture; end
+                       position:Position,
+                       vararg:boolean):MethodFuture; end
 
   # get the type of a field
   def getFieldType(target:TypeFuture, name:String, position:Position):AssignableTypeFuture; end
