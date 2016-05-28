@@ -37,6 +37,7 @@ import org.mirah.MirahLogFormatter
 import org.mirah.jvm.compiler.Backend
 import org.mirah.jvm.compiler.BytecodeConsumer
 import org.mirah.jvm.compiler.JvmVersion
+import org.mirah.jvm.compiler.ReportedException
 import org.mirah.jvm.mirrors.MirrorTypeSystem
 import org.mirah.jvm.mirrors.ClassResourceLoader
 import org.mirah.jvm.mirrors.ClassLoaderResourceLoader
@@ -115,6 +116,7 @@ abstract class MirahTool implements BytecodeConsumer
   rescue CompilationFailure
     puts "#{diagnostics.errorCount} errors"
     1
+  rescue ReportedException
   end
 
   def setDestination(dest:String):void

@@ -180,6 +180,8 @@ class BaseCompiler < SimpleNodeVisitor
   def defaultNode(node, arg)
     reportError("#{getClass.getSimpleName} can't compile node #{node.getClass.getSimpleName}",
                 node.position)
+    raise ReportedException.new(
+            Exception.new("#{getClass.getSimpleName} can't compile node #{node.getClass.getSimpleName}"))
   end
 
   def visit(node:Node, arg:Object):void
