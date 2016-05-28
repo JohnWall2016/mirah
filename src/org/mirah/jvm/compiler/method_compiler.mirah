@@ -637,6 +637,12 @@ class MethodCompiler < BaseCompiler
     @arrays.compile(node)
     @builder.pop unless expression
   end
+
+  def visitTypeArray(node, expression)
+    @type_arrays ||= TypeArrayCompiler.new(self, @builder)
+    @type_arrays.compile(node)
+    @builder.pop unless expression
+  end
   
   def visitHash(node, expression)
     @hashes ||= HashCompiler.new(self, @builder)

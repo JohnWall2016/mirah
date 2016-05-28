@@ -121,4 +121,23 @@ class Number < BaseType implements PrimitiveType
   def hashCode
     @kind.hashCode
   end
+
+  def isFix
+    if @kind == TypeKind.BYTE || @kind == TypeKind.CHAR ||
+       @kind == TypeKind.SHORT || @kind == TypeKind.INT ||
+       @kind == TypeKind.LONG
+      true
+    else
+      false
+    end
+      
+  end
+
+  def isFloat
+    if @kind == TypeKind.FLOAT || @kind == TypeKind.DOUBLE
+      true
+    else
+      false
+    end
+  end
 end

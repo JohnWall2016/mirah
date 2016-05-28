@@ -743,6 +743,50 @@ class Typer < SimpleNodeVisitor
     @types.getArrayLiteralType(component, array.position)
   end
 
+  def visitTypeArray(array, expression)
+    future = DelegateFuture.new
+    future.type = ErrorType.new([["Types is incompatible", array.position]])
+    
+    base_type = getTypeOf(array.type, TypeName(array.type).typeref)
+    array_type = @types.getArrayType(base_type)
+    
+    mergeUnquotes(array.values)
+    component = AssignableTypeFuture.new(array.position)
+    array.values.each do |v|
+      node = Node(v)
+      component.assign(infer(node, true), node.position)
+    end
+    component.onUpdate do |x, resolved|
+      if base_type.isResolved
+        if base_type.resolve.assignableFrom(resolved) ||
+           (base_type.resolve.kind_of?(org::mirah::jvm::mirrors::Number) &&
+            org::mirah::jvm::mirrors::Number(base_type.resolve).isFix &&
+            resolved.kind_of?(org::mirah::jvm::mirrors::Number) &&
+            org::mirah::jvm::mirrors::Number(resolved).isFix)
+          future.type = array_type
+        else
+          future.type = ErrorType.new([["#{resolved} can't be cast to #{base_type.resolve}",
+                                        array.position]])
+        end
+      end
+    end
+    base_type.onUpdate do |x, resolved|
+      if component.isResolved
+        if resolved.assignableFrom(component.resolve) ||
+           (component.resolve.kind_of?(org::mirah::jvm::mirrors::Number) &&
+            org::mirah::jvm::mirrors::Number(component.resolve).isFix &&
+            resolved.kind_of?(org::mirah::jvm::mirrors::Number) &&
+            org::mirah::jvm::mirrors::Number(resolved).isFix)
+          future.type = array_type
+        else
+          future.type = ErrorType.new([["#{component.resolve} can't be cast to #{resolved}",
+                                        array.position]])
+        end
+      end
+    end
+    future
+  end
+
   def visitFixnum(fixnum, expression)
     @types.getFixnumType(fixnum.value)
   end
@@ -931,8 +975,17 @@ class Typer < SimpleNodeVisitor
   end
 
   def visitEmptyArray(node, expression)
-    infer(node.size)
-    @types.getArrayType(getTypeOf(node, node.type.typeref))
+    size_type = infer(node.size)
+    array_type = @types.getArrayType(getTypeOf(node, node.type.typeref))
+    future = DelegateFuture.new
+    future.type = ErrorType.new([["Array size is not a number", node.position]])
+    size_type.onUpdate do |x, resolved|
+      if (resolved.name.equals('byte') || resolved.name.equals('char') ||
+          resolved.name.equals('short') || resolved.name.equals('int'))
+        future.type = array_type
+      end
+    end
+    future
   end
 
   def visitUnquote(node, expression)
