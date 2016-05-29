@@ -3,24 +3,26 @@ package org.mirah.util
 import javax.tools.Diagnostic
 import javax.tools.Diagnostic.Kind
 import mirah.lang.ast.Position
+import mirah.lang.ast.Node
 
 class MirahDiagnostic implements Diagnostic
-  def initialize(kind:Kind, position:Position, message:String)
+  def initialize(kind:Kind, position:Position, message:String, node:Node = nil)
     @kind = kind
     @position = position
     @message = message
+    @node = node
   end
   
-  def self.error(position:Position, message:String)
-    MirahDiagnostic.new(Kind.ERROR, position, message)
+  def self.error(position:Position, message:String, node:Node = nil)
+    MirahDiagnostic.new(Kind.ERROR, position, message, node)
   end
   
-  def self.warning(position:Position, message:String)
-    MirahDiagnostic.new(Kind.WARNING, position, message)
+  def self.warning(position:Position, message:String, node:Node = nil)
+    MirahDiagnostic.new(Kind.WARNING, position, message, node)
   end
   
-  def self.note(position:Position, message:String)
-    MirahDiagnostic.new(Kind.NOTE, position, message)
+  def self.note(position:Position, message:String, node:Node = nil)
+    MirahDiagnostic.new(Kind.NOTE, position, message, node)
   end
   
   def getKind
@@ -72,5 +74,9 @@ class MirahDiagnostic implements Diagnostic
   
   def getStartPosition:long
     getPosition
+  end
+
+  def getNode:Node
+    @node
   end
 end

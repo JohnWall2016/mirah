@@ -75,9 +75,9 @@ class ErrorCollector < NodeScanner
       if items.size == 1 && items[1]
         position = Position(items[1])
       end
-      MirahDiagnostic.error(position, text)
+      MirahDiagnostic.error(position, text, node)
     else messages.size == 0
-      MirahDiagnostic.error(node.position, "Error")
+      MirahDiagnostic.error(node.position, "Error", node)
     end
   end
 end
