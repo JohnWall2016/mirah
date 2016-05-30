@@ -6,7 +6,6 @@ import java.util.Locale
 import javax.tools.Diagnostic.Kind
 import javax.tools.DiagnosticListener
 import mirah.lang.ast.CodeSource
-import mirah.lang.ast.Node
 
 class TooManyErrorsException < RuntimeException; end
 
@@ -47,62 +46,6 @@ class SimpleDiagnostics; implements DiagnosticListener
     log(Kind.ERROR, '', message)
   end
 
-  def getOriginalNodeMessage(node: Node): String
-    ret = ''
-    if node && node.originalNode
-      pos = node.originalNode.position
-      if pos
-        buffer = StringBuffer.new('')
-        newline = String.format("%n")
-        position = String.format("%s:%d:%n%n", pos.source.name, pos.startLine)
-        buffer.append(position)
-        
-        target_line = Math.max(0, int(pos.startLine - pos.source.initialLine))
-        start_col = if target_line == 0
-                      pos.startColumn - pos.source.initialColumn
-                    else
-                      pos.startColumn - 1
-                    end
-        start_col = long(0) if start_col < 0
-        lines = @newline.split(pos.source.contents)
-        if target_line < lines.length
-          line = lines[target_line]
-          buffer.append(line)
-          buffer.append(newline)
-          space = char[int(start_col)]
-          prefix = line.substring(0,int(start_col))
-          prefix.length.times do |i|
-            c = prefix.charAt(i) 
-            if Character.isWhitespace(c)
-              space[i] = c
-            else
-              space[i] = char(32) 
-            end
-          end
-          buffer.append(space)
-          length = Math.min(pos.endChar - pos.startChar,
-                            line.length - start_col)
-          underline = char[int(Math.max(length, 1))]
-          Arrays.fill(underline, char(94))
-          buffer.append(underline)
-          buffer.append(newline)
-          buffer.append(newline)
-          ret += buffer.toString
-        end
-      end
-      ret += getOriginalNodeMessage(node.originalNode)
-    end
-    ret
-  end
-
-  def getOriginalNodesMessages(node: Node)
-    msg = getOriginalNodeMessage(node)
-    if msg != ''
-      return "\n\nOrignal nodes in\n\n" + msg
-    end
-    ''
-  end
-  
   def report(diagnostic)
     @errors += 1 if Kind.ERROR == diagnostic.getKind
     source = CodeSource(diagnostic.getSource) if diagnostic.getSource.kind_of?(CodeSource)
@@ -145,9 +88,6 @@ class SimpleDiagnostics; implements DiagnosticListener
         buffer.append(underline)
         message = buffer.toString
       end
-    end
-    if diagnostic.kind_of?(MirahDiagnostic)
-      message += getOriginalNodesMessages(MirahDiagnostic(diagnostic).getNode)
     end
     log(diagnostic.getKind, position, message)
     if @errors > @max_errors && @max_errors > 0

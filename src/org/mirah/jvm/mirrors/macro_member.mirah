@@ -44,9 +44,7 @@ class MacroMember < Member
     InlineCode.new do |node, typer|
       constructor = klass.getDeclaredConstructors[0]
       macroimpl = Macro(constructor.newInstance(typer.macro_compiler, node))
-      ret = macroimpl.expand || Noop.new(node.position)
-      ret.setOriginalNode(node)
-      ret
+      macroimpl.expand || Noop.new(node.position)
     end
   end
 
