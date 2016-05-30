@@ -1164,10 +1164,16 @@ class Typer < SimpleNodeVisitor
     i = 0
     parameters.each do |param_type: AssignableTypeFuture|
       if !param_type.hasDeclaration
+        resolved = ResolvedType(method_type.parameterTypes.get(i))
+        typeName = resolved.name
+        isArray = false
+        if typeName.endsWith('[]')
+          typeName = typeName.substring(0, typeName.length - 2)
+          isArray = true
+        end
         future = @types.get(
           scopeOf(block),
-          TypeRefImpl.new(
-            ResolvedType(method_type.parameterTypes.get(i)).name))
+          TypeRefImpl.new(typeName, isArray))
         param_type.declare(
                 future,
                 block.arguments.position)
