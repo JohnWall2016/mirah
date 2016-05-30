@@ -107,7 +107,7 @@ abstract class MirahTool implements BytecodeConsumer
     @compiler.infer
     @compiler.compile(self)
     0
-  rescue Error => err
+  rescue SyntaxException => err
     diagnostics.err(err.getMessage)
     1
   rescue TooManyErrorsException

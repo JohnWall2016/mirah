@@ -68,6 +68,12 @@ import org.mirah.util.AstChecker
 class CompilationFailure < Exception
 end
 
+class SyntaxException < Exception
+  def initialize(msg: String)
+    super(msg)
+  end
+end
+
 class MirahCompiler implements JvmBackend
 
   def initialize(
@@ -148,7 +154,7 @@ class MirahCompiler implements JvmBackend
     begin
       node = Node(@parser.parse(code))
     rescue org.mirah.mmeta.SyntaxError => e
-      raise Error.new("#{code.name} failed to parse, #{e.getMessage}")
+      raise SyntaxException.new("#{code.name} failed to parse, #{e.getMessage}")
     end
     if node.nil?
       puts "#{code.name} failed to parse."
