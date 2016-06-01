@@ -1239,7 +1239,9 @@ class Typer < SimpleNodeVisitor
                                      parameters,
                                      returnType,
                                      mdef.name.position,
-                                     mdef.arguments.rest!=nil)
+                                     (mdef.arguments.rest &&
+                                      mdef.arguments.required2.size==0 &&
+                                      mdef.arguments.block.nil?))
       @futures[mdef] = type
       declareOptionalMethods(selfType,
                              mdef,
@@ -1275,7 +1277,9 @@ class Typer < SimpleNodeVisitor
       last_optional_arg = first_optional_arg + mdef.arguments.optional_size - 1
       last_optional_arg.downto(first_optional_arg) do |i|
         args.remove(i)
-        @types.getMethodDefType(target, mdef.name.identifier, args, type, mdef.name.position, mdef.arguments.rest!=nil)
+        @types.getMethodDefType(target, mdef.name.identifier, args, type, mdef.name.position,
+                                (mdef.arguments.rest && mdef.arguments.required2.size==0 &&
+                                 mdef.arguments.block.nil?))
       end
     end
   end
