@@ -146,6 +146,8 @@ class ClassCompiler < BaseCompiler implements InnerClassCompiler
   
   def methodFlags(mdef:MethodDefinition, isStatic:boolean)
     flags = calculateFlagsFromAnnotations(Opcodes.ACC_PUBLIC, mdef.annotations)
+    type = getInferredType(mdef)
+    flags |= Opcodes.ACC_VARARGS if type && type.isVararg
     if isStatic
       flags | Opcodes.ACC_STATIC
     else
