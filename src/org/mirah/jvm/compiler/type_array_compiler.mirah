@@ -47,5 +47,6 @@ class TypeArrayCompiler < BaseCompiler
       @bytecode.convertValue(getInferredType(value), type)
       @bytecode.arrayStore(type.getAsmType)
     end
+    @bytecode.pop
   end
 end
