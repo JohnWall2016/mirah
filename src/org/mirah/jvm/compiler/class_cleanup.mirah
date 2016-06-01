@@ -312,7 +312,7 @@ class ClassCleanup < NodeScanner
       params.add(LocalAccess.new(optarg.position, optarg.name))
     end
     if args.rest
-      params.add(LocalAccess.new(args.rest.position, arg.name))
+      params.add(LocalAccess.new(args.rest.position, args.rest.name))
     end
     args.required2_size.times do |i|
       arg = args.required2(i)
