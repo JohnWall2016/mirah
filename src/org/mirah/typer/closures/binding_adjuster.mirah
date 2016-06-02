@@ -189,6 +189,14 @@ class BindingAdjuster < NodeScanner
     nil # do not descent into classes which just happen to be defined in the scope which gets a closure
   end
 
+  def visitMethodDefinition(node, blah)
+    nil
+  end
+
+  def visitMacroDefinition(node, blah)
+    nil
+  end
+
   def enterClosureDefinition(node, blah)
     # skip the definition of the binding we're in the process of inserting
     @binding_klass_node != node
