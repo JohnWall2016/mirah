@@ -372,11 +372,11 @@ class BetterScope
   macro def self.can_have_locals_captured
     quote do
       def isCaptured(name)
-        return false unless @locals.has_local(name)
+        return false if !@locals.has_local(name) || shadowed?(name)
         return true if parent && parent.hasLocal(name)
 
         return children.any? do |child: BetterScope|
-          if child.hasLocal(name, false)
+          if child.hasLocal(name, false) && !child.shadowed?(name)
             true
           else
             false
@@ -560,6 +560,7 @@ class ClosureScope < BetterScope
     super context
     @scoper = scoper
     @locals = Locals.new
+    @shadowed = HashSet.new
     @imports = ImportsAndSearchPackages.new
   end
 
@@ -577,7 +578,14 @@ class ClosureScope < BetterScope
 
   # for the moment, no shadowing,
   # but once scopes support declarations, then yes
-  no_shadowing
+  #no_shadowing
+  def shadow(name)
+    @shadowed.add name
+  end
+
+  def shadowed? name
+    @shadowed.contains(name)
+  end
 
   def internal_locals
     @locals

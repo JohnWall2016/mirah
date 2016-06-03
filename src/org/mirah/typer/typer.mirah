@@ -1145,6 +1145,26 @@ class Typer < SimpleNodeVisitor
     @@log.entering("Typer", "inferClosureBlock", "inferClosureBlock(#{block})")
     # TODO optional arguments
 
+    # shadowing arguments
+    clsScope = ClosureScope(@scopes.getIntroducedScope(block))
+    [block.arguments.required,
+     block.arguments.optional,
+     block.arguments.required2].each do |args|
+      Iterable(args).each do |arg|
+        farg = FormalArgument(arg)
+        argName = farg.name.identifier
+        clsScope.shadow(argName) unless clsScope.shadowed?(argName)
+      end
+    end
+    if block.arguments.rest
+      argName = block.arguments.rest.name.identifier
+      clsScope.shadow(argName) unless clsScope.shadowed?(argName)
+    end
+    if block.arguments.block
+      argName = block.arguments.block.name.identifier
+      clsScope.shadow(argName) unless clsScope.shadowed?(argName)
+    end
+
     #inferAll(block.annotations) # blocks have no annotations
     # block args can be nil...
     parameters = if block.arguments

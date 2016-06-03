@@ -22,6 +22,7 @@ import org.mirah.typer.BetterClosureBuilder
 import org.mirah.jvm.types.JVMTypeUtils
 import org.mirah.jvm.types.JVMType
 import org.mirah.jvm.mirrors.MirrorScope
+import org.mirah.jvm.mirrors.ClosureScope
 import org.mirah.util.Logger
 
 import java.util.Map
@@ -240,7 +241,11 @@ class BindingAdjuster < NodeScanner
 
   def exitLocalAssignment(local, blah)
     local_name = local.name.identifier
-    return nil unless @captured.contains local_name
+    clsScope = nil
+    if @builder.typer.scopeOf(local).kind_of?(ClosureScope)
+      clsScope = ClosureScope(@builder.typer.scopeOf(local))
+    end
+    return nil if !@captured.contains(local_name) || (clsScope && clsScope.shadowed?(local_name))
 
     @@log.finest "enterLocalAssignment: replacing #{local.name.identifier} with #{@bindingName}.#{local.name.identifier}="
     @@log.finest "  Type: #{@builder.typer.getInferredType(local)}"
@@ -267,7 +272,11 @@ class BindingAdjuster < NodeScanner
 
   def exitLocalAccess(local, blah)
     local_name = local.name.identifier
-    return nil unless @captured.contains local_name
+    clsScope = nil
+    if @builder.typer.scopeOf(local).kind_of?(ClosureScope)
+      clsScope = ClosureScope(@builder.typer.scopeOf(local))
+    end
+    return nil if !@captured.contains(local_name) || (clsScope && clsScope.shadowed?(local_name))
 
     @@log.finest "enterLocalAccess: replacing #{local.name.identifier} with #{@bindingName}.#{local.name.identifier}="
     @@log.finest "  Type: #{@builder.typer.getInferredType(local)}"
