@@ -229,7 +229,10 @@ class MirahArguments
 
     parser.addFlag(['no-color'],
       "Don't use color when writing logs"
-    ) { compiler_args.logger_color = false }
+                  ) {
+      compiler_args.logger_color = false
+      compiler_args.diagnostics.setColor false
+    }
 
     parser.addFlag(
         ['tdb'], 'Start the interactive type debugger.'

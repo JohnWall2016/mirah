@@ -30,6 +30,22 @@ class SimpleDiagnostics; implements DiagnosticListener
     @max_errors = 20
   end
 
+  def setColor(color:boolean)
+    if color
+      @prefixes.put(Kind.ERROR, "\e[1m\e[31mERROR\e[0m: ")
+      @prefixes.put(Kind.MANDATORY_WARNING, "\e[1m\e[33mWARNING\e[0m: ")
+      @prefixes.put(Kind.WARNING, "\e[1m\e[33mWARNING\e[0m: ")
+      @prefixes.put(Kind.NOTE, "")
+      @prefixes.put(Kind.OTHER, "")
+    else
+      @prefixes.put(Kind.ERROR, "ERROR: ")
+      @prefixes.put(Kind.MANDATORY_WARNING, "WARNING: ")
+      @prefixes.put(Kind.WARNING, "WARNING: ")
+      @prefixes.put(Kind.NOTE, "")
+      @prefixes.put(Kind.OTHER, "")
+    end
+  end
+  
   def setMaxErrors(count:int):void
     @max_errors = count
   end
