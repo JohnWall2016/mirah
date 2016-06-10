@@ -117,6 +117,7 @@ abstract class MirahTool implements BytecodeConsumer
     puts "#{diagnostics.errorCount} errors"
     1
   rescue ReportedException
+    1
   end
 
   def setDestination(dest:String):void
