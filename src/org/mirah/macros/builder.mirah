@@ -50,8 +50,6 @@ import mirah.lang.ast.TypeName
 import mirah.lang.ast.Unquote
 import mirah.lang.ast.FunctionalCall
 import mirah.lang.ast.TypeRefImpl
-import mirah.lang.ast.AnnotationList
-import mirah.lang.ast.Constant
 import org.mirah.typer.TypeFuture
 import org.mirah.typer.Typer
 
@@ -249,7 +247,6 @@ class MacroBuilder; implements org.mirah.macros.Compiler
     name = extensionName(macroDef)
     addMissingTypes(macroDef)
     argdef = makeArgAnnotation(macroDef.arguments)
-    typedef = makeArgTypeAnnotation(macroDef.annotations)
     casts = makeCasts(macroDef.arguments)
     scope = @scopes.getScope(macroDef)
     isStatic = mirah::lang::ast::Boolean.new(macroDef.name.position, macroDef.isStatic || scope.selfType.resolve.isMeta)
@@ -263,7 +260,7 @@ class MacroBuilder; implements org.mirah.macros.Compiler
       import mirah.lang.ast.*
       import java.lang.reflect.Array as ReflectArray
 
-      $MacroDef[name: `macroDef.name`, arguments: `argdef`, isStatic: `isStatic`, argumentTypes: `typedef`]
+      $MacroDef[name: `macroDef.name`, arguments: `argdef`, isStatic: `isStatic`]
       class `name` implements Macro
         def initialize(mirah: Compiler, call: CallSite)
           @mirah = mirah
@@ -421,18 +418,6 @@ class MacroBuilder; implements org.mirah.macros.Compiler
       entries.add HashEntry.new(SimpleString.new('rest'), SimpleString.new(name))
     end
     Annotation.new(SimpleString.new('org.mirah.macros.anno.MacroArgs'), entries)
-  end
-
-  def makeArgTypeAnnotation(annos: AnnotationList): Annotation
-    if annos
-      for anno in annos
-        anno1 = Annotation(anno)
-        if Constant(anno1.type).identifier.equals('MacroArgTypes')
-          return anno1
-        end
-      end
-    end
-    Annotation.new(SimpleString.new('org.mirah.macros.anno.MacroArgTypes'), [])
   end
 
   # Returns a node to fetch the i'th macro argument during expansion.

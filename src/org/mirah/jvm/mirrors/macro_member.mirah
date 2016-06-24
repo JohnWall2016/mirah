@@ -57,24 +57,15 @@ class MacroMember < Member
     
     # TODO support optional, rest args
     argumentTypes = []
-
-    if macrodef.argumentTypes.value.length > 0
-      macrodef.argumentTypes.value.each do |typeName|
-        argumentTypes.add(types.loadNamedType(typeName).resolve)
-      end
-      vararg = macrodef.arguments.rest
-      flags |= Opcodes.ACC_VARARGS if vararg and vararg.trim.length > 0
-    else
-      macrodef.arguments.required.each do |name|
-        argumentTypes.add(types.loadMacroType(name))
-      end
-      vararg = macrodef.arguments.rest
-      if vararg and vararg.trim.length > 0
-        component_type = types.loadMacroType(vararg.trim)
-        type = types.getArrayType(component_type)
-        argumentTypes.add(type)
-        flags |= Opcodes.ACC_VARARGS
-      end
+    macrodef.arguments.required.each do |name|
+      argumentTypes.add(types.loadMacroType(name))
+    end
+    vararg = macrodef.arguments.rest
+    if vararg and vararg.trim.length > 0
+      component_type = types.loadMacroType(vararg.trim)
+      type = types.getArrayType(component_type)
+      argumentTypes.add(type)
+      flags |= Opcodes.ACC_VARARGS
     end
 
     kind = if macrodef.isStatic

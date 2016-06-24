@@ -10,5 +10,4 @@ public @interface MacroDef {
     String name();
     MacroArgs arguments() default @MacroArgs;
 	boolean isStatic() default false;
-    MacroArgTypes argumentTypes() default @MacroArgTypes;
 }

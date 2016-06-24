@@ -659,8 +659,7 @@ class LookupState
     @macro_params = macro_params
     lookup = @context[MethodLookup]
     @matches = lookup.findMatchingMethod(@methods, params)
-    @macro_matches = lookup.findMatchingMethod(@macros, params)
-    @macro_matches = lookup.findMatchingMethod(@macros, macro_params) if @macro_matches.nil?
+    @macro_matches = lookup.findMatchingMethod(@macros, macro_params)
     if matches > 0
       # These methods match using the raw signature, but they
       # may not actually be applicable using generics
