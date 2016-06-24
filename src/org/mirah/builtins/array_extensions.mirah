@@ -180,7 +180,6 @@ class ArrayExtensions
     Cast.new(@call.position, TypeName(@call.target), array)
   end
 
-  $MacroArgTypes['int', 'int']
   macro def [](index, length)
     arraytype_future   = @mirah.typer.infer(@call.target)
     arraytype_name     = arraytype_future.resolve.name

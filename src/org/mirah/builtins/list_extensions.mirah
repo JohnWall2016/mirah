@@ -19,12 +19,10 @@ import org.mirah.macros.anno.ExtensionsRegistration
 
 $ExtensionsRegistration[['java.util.List']]
 class ListExtensions
-  $MacroArgTypes['int',]
   macro def [](index)
     quote { `@call.target`.get `index` }
   end
 
-  $MacroArgTypes['int', 'int']
   macro def [](index, length)
     quote do
       size = `@call.target`.size
@@ -41,7 +39,6 @@ class ListExtensions
     end
   end
 
-  $MacroArgTypes['int', 'java.lang.Object']
   macro def []=(index, value)
     quote { `@call.target`.add `index`, `value` }
   end
