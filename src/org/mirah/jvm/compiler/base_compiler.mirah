@@ -151,6 +151,18 @@ class BaseCompiler < SimpleNodeVisitor
     Method.new(name, returnType.getAsmType, args)
   end
 
+  def methodSignature(returnType:JVMType, argTypes:List): String
+    result = "("
+    argTypes.each do |t|
+      return nil unless (sig = JVMType(t).getSignature)
+      result += sig
+    end
+    result += ")"
+    return nil unless (sig = returnType.getSignature)
+    result += sig
+    result
+  end
+
   def methodDescriptor(method:JVMMethod):Method
     returnType = method.returnType.getAsmType
     name = method.name

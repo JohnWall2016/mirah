@@ -71,6 +71,8 @@ import org.mirah.jvm.types.JVMType
 import org.mirah.jvm.types.JVMTypeUtils
 import org.mirah.jvm.types.MemberKind
 
+import mirah.lang.ast.TypeName
+
 class MirrorTypeSystem implements TypeSystem, ExtensionsService
   def initialize(
       context:Context=nil,
@@ -491,6 +493,13 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
       loadNamedType(name)
     else
       loadWithScope(scope, name, typeref.position)
+    end
+    if typeref.arguments && typeref.arguments.size > 0
+      args = LinkedList.new
+      typeref.arguments.each do |arg|
+        args.add(get(scope, TypeName(arg).typeref))
+      end
+      type = parameterize(type, args)
     end
     if typeref.isArray
       getArrayType(type)

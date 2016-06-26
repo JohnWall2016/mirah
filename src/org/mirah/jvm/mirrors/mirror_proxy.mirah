@@ -272,6 +272,14 @@ class MirrorProxy implements MirrorType,
     end
   end
 
+  def getSignature
+    if @target
+      @target.getSignature
+    else
+      nil
+    end
+  end
+
   def ensure_linked
     if @target.kind_of?(DeclaredMirrorType)
       DeclaredMirrorType(@target).ensure_linked

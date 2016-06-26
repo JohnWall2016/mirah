@@ -50,6 +50,8 @@ interface JVMType < ResolvedType
 
   def getDeclaredFields:JVMField[]; end
   def getDeclaredField(name:String):JVMField; end
+
+  def getSignature:String; end
 end
 
 interface CallType < JVMType

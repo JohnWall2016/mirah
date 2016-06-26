@@ -49,7 +49,7 @@ class ReturnTypeFuture < AssignableTypeFuture
     if type && type.name.equals("null")
       type = @context[MirrorTypeSystem].loadNamedType('java.lang.Object').resolve
     elsif type.kind_of?(MirrorType)
-      type = MirrorType(MirrorType(type).erasure)
+      type = MirrorType(type)
     elsif type.kind_of?(UnreachableType)
       type = VoidType.new
     end

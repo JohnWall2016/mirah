@@ -30,6 +30,9 @@ import org.mirah.typer.TypeFuture
 import org.mirah.typer.ErrorType
 import org.mirah.util.Context
 
+import org.mirah.jvm.types.JVMType
+import org.objectweb.asm.Type
+
 class TypeInvocation < AsyncMirror implements DeclaredMirrorType
   def initialize(context:Context, raw:MirrorType, superclass:TypeFuture, interfaces:TypeFuture[], args:List, typeVariableMap:Map)
     super(context, raw.getAsmType, raw.flags, superclass, interfaces)
@@ -52,6 +55,24 @@ class TypeInvocation < AsyncMirror implements DeclaredMirrorType
 
   def signature
     DeclaredMirrorType(@raw).signature
+  end
+
+  def getSignature
+    begin
+      tp = @raw.getAsmType
+      tpa = getTypeArguments
+      if tp.getSort == Type.OBJECT && tpa && tpa.size > 0
+        result = "L#{tp.getInternalName}<"
+        tpa.each do |t|
+          return nil unless (sig = JVMType(t).getSignature)
+          result += sig
+        end
+        result += ">;"
+        return result
+      end
+    rescue => ex
+    end
+    super
   end
 
   def interfaces:TypeFuture[]

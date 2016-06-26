@@ -154,6 +154,14 @@ class BaseType implements MirrorType, DeclaredType, MethodListener
 
   def getAsmType:Type; @type; end
 
+  def getSignature:String
+    begin
+      return @type.getDescriptor if @type
+    rescue => ex
+    end
+    nil
+  end
+
   def isInterface:boolean
     0 != (self.flags & Opcodes.ACC_INTERFACE)
   end

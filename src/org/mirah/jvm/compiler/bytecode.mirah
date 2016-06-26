@@ -52,10 +52,10 @@ class Bytecode < GeneratorAdapter
     attr_reader name:String, index:int, type:Type, scopeStart:Label, scopeEnd:Label
   end
   
-  def initialize(flags:int, method:Method, klass:ClassVisitor, codesource:CodeSource)
+  def initialize(flags:int, method:Method, klass:ClassVisitor, codesource:CodeSource, signature:String=nil)
     super(Opcodes.ASM4,
           MethodVisitor(@mv = LocalInitializerAdapter.new(klass.visitMethod(
-              flags, method.getName, method.getDescriptor, nil, nil),
+              flags, method.getName, method.getDescriptor, signature, nil),
               flags, method.getDescriptor)),
           flags, method.getName, method.getDescriptor)
     @endLabel = newLabel
