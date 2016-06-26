@@ -293,12 +293,13 @@ class MethodLookup
                  macro_params:List,
                  position:Position,
                  includeStaticImports:boolean):TypeFuture
-    potentials = gatherMethods(target, name)
+    potentials = gatherMethods(MirrorType(target.erasure), name)
 
     if includeStaticImports && potentials.isEmpty
       potentials = gatherStaticImports(MirrorScope(scope), name)
     end
-    state = LookupState.new(@context, scope, target, potentials, position)
+    state = LookupState.new(@context, scope, target, potentials, position,
+                            ('<init>'.equals(name) ? true : false))
     state.search(params, macro_params)
     state.searchFields(name)
     @@log.fine("findMethod(#{target}.#{name}#{params}) => #{state}")
@@ -600,11 +601,13 @@ class LookupState
                  scope:Scope,
                  target:MirrorType,
                  potentials:List,
-                 position:Position)
+                 position:Position,
+                 skipGeneric:boolean=false)
     @context = context
     @scope = scope
     @target = target
     @position = position
+    @skipGeneric = skipGeneric
     setPotentials(potentials)
   end
 
@@ -660,7 +663,7 @@ class LookupState
     lookup = @context[MethodLookup]
     @matches = lookup.findMatchingMethod(@methods, params)
     @macro_matches = lookup.findMatchingMethod(@macros, macro_params)
-    if matches > 0
+    if matches > 0 && !skipGeneric
       # These methods match using the raw signature, but they
       # may not actually be applicable using generics
       # (in which case there would probably be a ClassCastException

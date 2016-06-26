@@ -251,13 +251,14 @@ class Typer < SimpleNodeVisitor
     @futures[call] = methodType
     
     proxy = ProxyNode.new(self, call)
-    children = ArrayList.new(2)
+    children = ArrayList.new(3)
+    
+    is_array = '[]'.equals(call.name.identifier)
     
     if  call.parameters.size == 1
       # This might actually be a cast or array instead of a method call, so try
       # both. If the cast works, we'll go with that. If not, we'll leave
       # the method call.
-      is_array = '[]'.equals(call.name.identifier)
       if is_array
         typeref = TypeName(call.target).typeref if call.target.kind_of?(TypeName)
       else
@@ -272,10 +273,38 @@ class Typer < SimpleNodeVisitor
         end)
       end
     end
+
+    # Generic Type Invoking?
+    if is_array
+      if call.target.kind_of?(TypeName)
+        typeref = TypeName(call.target).typeref
+        params = ArrayList.new
+        isGeneric = false
+        if call.parameters and call.parameters.size > 0
+          isGeneric = true
+          call.parameters.each do |a|
+            if isGeneric && a.kind_of?(TypeName) && TypeName(a).typeref
+              params.add(TypeName(a).typeref)
+            else
+              isGeneric = false
+            end
+          end
+        end
+        if isGeneric
+          ti = TypeInvoke.new(typeref.position, typeref, params)
+          children.add(ti)
+        end
+      end
+    end
+    
     children.add(call)
     proxy.setChildren(children)
 
     @futures[proxy] = proxy.inferChildren(expression != nil)
+  end
+
+  def visitTypeInvoke(typeinvoke, expression)
+    @types.getMetaType(getTypeOf(typeinvoke, typeinvoke.typeref))
   end
 
   def visitAttrAssign(call, expression)
