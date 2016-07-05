@@ -315,8 +315,11 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
     klass = MirrorType(resolved.unmeta)
     member = klass.getDeclaredField(name)
     if member
-      @@log.finest "found declared field future for target: #{target} name: #{name}"
-      return AssignableTypeFuture(AsyncMember(member).asyncReturnType)
+      if (resolved.isMeta && AsyncMember(member).kind == MemberKind.STATIC_FIELD_ACCESS) ||
+         (!resolved.isMeta && AsyncMember(member).kind == MemberKind.FIELD_ACCESS)
+        @@log.finest "found declared field future for target: #{target} name: #{name}"
+        return AssignableTypeFuture(AsyncMember(member).asyncReturnType)
+      end
     end
 
     undeclared_future = @unpinned_field_futures[unpinned_key(klass, name)]
@@ -336,7 +339,15 @@ class MirrorTypeSystem implements TypeSystem, ExtensionsService
     klass = MirrorType(resolved.unmeta)
     member = klass.getDeclaredField(name)
     future = if member
-      AsyncMember(member).asyncReturnType
+      if resolved.isMeta && AsyncMember(member).kind == MemberKind.FIELD_ACCESS
+        AssignableTypeFuture.new(position).resolved(
+          ErrorType.new([["already declared instance field '#{name}'"]]))
+      elsif !resolved.isMeta && AsyncMember(member).kind == MemberKind.STATIC_FIELD_ACCESS
+        AssignableTypeFuture.new(position).resolved(
+          ErrorType.new([["already declared static field '#{name}'"]]))
+      else
+        AsyncMember(member).asyncReturnType
+      end
     else
       createField(klass, name, resolved.isMeta, position)
     end

@@ -79,10 +79,11 @@ class ClassCleanup < NodeScanner
       add_default_constructor unless @klass.kind_of?(InterfaceDeclaration)
     end
 
-    init = if @init_nodes.nil?
-      nil
-    else
-      NodeList.new(@init_nodes)
+    init = NodeList.new
+    @init_nodes.each do |node: Node|
+      node.parent.removeChild(node)
+      node.setParent(nil)
+      init.add(node)
     end
     cleanup = ConstructorCleanup.new(@context)
     @constructors.each do |n: ConstructorDefinition|
@@ -263,7 +264,6 @@ class ClassCleanup < NodeScanner
       @static_init_nodes.add(node)
     else
       @init_nodes.add(node)
-      node.parent.removeChild(node)
     end
     false
   end

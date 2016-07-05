@@ -528,7 +528,12 @@ class Typer < SimpleNodeVisitor
   def visitFieldAssign(field, expression)
     inferAnnotations field
     value = infer(field.value, true)
-    getFieldTypeOrDeclare(field, field.isStatic).assign(value, field.position)
+    fieldType = getFieldTypeOrDeclare(field, field.isStatic)
+    if fieldType.isResolved && fieldType.resolve.isError
+      fieldType.resolve
+    else
+      fieldType.assign(value, field.position)
+    end
   end
 
   def visitConstantAssign(field, expression)
